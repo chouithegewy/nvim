@@ -32,9 +32,20 @@ vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
 vim.keymap.set("n", "<leader>b", "<cmd>!bun %<CR>")
 vim.keymap.set("n", "<leader>l", "<cmd>!lua5.3 %<CR>")
+vim.keymap.set("n", "<leader>j", "<cmd>!./vendor/friendsoftwig/twigcs/bin/twigcs %<CR>")
 vim.keymap.set("n", "<leader>vpp", "<cmd>e ~/.config/nvim/lua/d/packer.lua<CR>");
 vim.keymap.set("n", "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>");
 vim.keymap.set("n", "<leader><leader>", function()
     vim.cmd("so")
 end)
 vim.keymap.set("n", "<leader>q", "<cmd>:g/^$/d<CR>")
+vim.keymap.set("n", "<leader>cs", function()
+    local filename = vim.fn.expand('%')
+    local ext = filename.sub(filename, -4)
+    if (ext == '.php') then
+        vim.cmd("!~/.local/share/nvim/mason/packages/phpcs/phpcs %")
+        vim.cmd("!~/.local/share/nvim/mason/packages/phpcbf/phpcbf %")
+    elseif (ext == 'twig') then
+        vim.cmd("!symfony console lint:twig %")
+    end
+end)
