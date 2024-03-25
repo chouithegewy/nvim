@@ -1,0 +1,1 @@
+# d nvim rc
