@@ -1,14 +1,11 @@
 require("d.set")
 require("d.remap")
-
 require("d.lazy_init")
 
 local augroup = vim.api.nvim_create_augroup
 local ChilosGroup = augroup('TheChilos', {})
-
 local autocmd = vim.api.nvim_create_autocmd
 local yank_group = augroup('HighlightYank', {})
-
 function R(name)
     require("plenary.reload").reload_module(name)
 end
@@ -18,7 +15,6 @@ vim.filetype.add({
         templ = 'templ',
     }
 })
-
 autocmd('TextYankPost', {
     group = yank_group,
     pattern = '*',
@@ -29,13 +25,11 @@ autocmd('TextYankPost', {
         })
     end,
 })
-
 autocmd({ "BufWritePre" }, {
     group = ChilosGroup,
     pattern = "*",
     command = [[%s/\s\+$//e]],
 })
-
 autocmd('LspAttach', {
     group = ChilosGroup,
     callback = function(e)
@@ -52,7 +46,6 @@ autocmd('LspAttach', {
         vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
     end
 })
-
 vim.g.netrw_browse_split = 0
 vim.g.netrw_banner = 0
 vim.g.netrw_winsize = 25

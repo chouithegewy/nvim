@@ -1,1 +1,1 @@
-# d nvim rc
+nvim conf
