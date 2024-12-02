@@ -29,6 +29,7 @@ return {
                 "rust_analyzer",
                 "basedpyright",
                 "lua_ls",
+                "phpactor",
             },
             handlers = {
                 function(server_name) -- default handler (optional)
