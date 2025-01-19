@@ -19,4 +19,4 @@ vim.opt.signcolumn = "yes"
 vim.opt.isfname:append("@-@")
 vim.opt.updatetime = 50
 vim.opt.colorcolumn = "90"
-vim.g.clipboard = unnamedplus;
+vim.g.python3_host_prog = "/usr/bin/python3.12"
