@@ -1,3 +1,5 @@
+vim.opt.termguicolors = true
+vim.cmd.colorscheme("lunaperche")
 vim.opt.guicursor = ""
 vim.opt.nu = true
 vim.opt.relativenumber = true
