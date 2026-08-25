@@ -29,6 +29,37 @@ return {
 
         local tsgo_warned_roots = {}
 
+        local function cargo_uses_bare_metal_target(root_dir)
+            local directory = root_dir
+
+            while directory and directory ~= "" do
+                for _, relative_path in ipairs({ "/.cargo/config.toml", "/.cargo/config" }) do
+                    local config_path = directory .. relative_path
+                    if vim.fn.filereadable(config_path) == 1 then
+                        local ok, lines = pcall(vim.fn.readfile, config_path)
+                        if ok then
+                            for _, line in ipairs(lines) do
+                                local target = line:match(
+                                    "^%s*target%s*=%s*[\"']([^\"']+)[\"']"
+                                )
+                                if target and target:find("%-none%-") then
+                                    return true
+                                end
+                            end
+                        end
+                    end
+                end
+
+                local parent = vim.fs.dirname(directory)
+                if not parent or parent == directory then
+                    break
+                end
+                directory = parent
+            end
+
+            return false
+        end
+
         local function warn_missing_node_modules(client)
             local root_dir = client.root_dir
             if not root_dir or tsgo_warned_roots[root_dir] then
@@ -111,6 +142,26 @@ return {
 
         vim.lsp.config("rust_analyzer", {
             capabilities = capabilities,
+            before_init = function(params, config)
+                local root_dir = config.root_dir
+                if not root_dir and params.rootUri then
+                    root_dir = vim.uri_to_fname(params.rootUri)
+                end
+
+                if not cargo_uses_bare_metal_target(root_dir) then
+                    return
+                end
+
+                -- Neovim has already deep-copied this client's config and
+                -- snapshots the settings table before calling before_init.
+                -- Mutate that table in place so the server receives the change.
+                local settings = config.settings["rust-analyzer"]
+
+                settings.cargo = settings.cargo or {}
+                settings.cargo.allTargets = false
+                settings.check = settings.check or {}
+                settings.check.allTargets = false
+            end,
             settings = {
                 ["rust-analyzer"] = {
                     files = {
