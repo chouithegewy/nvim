@@ -18,6 +18,8 @@ return {
             "html",
             "css",
             "json",
+            "markdown",
+            "markdown_inline",
         }
 
         require("nvim-treesitter").install(ensure_installed)
