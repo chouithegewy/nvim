@@ -35,7 +35,29 @@ autocmd('LspAttach', {
     callback = function(e)
         local opts = { buffer = e.buf }
         vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-        vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
+        vim.keymap.set("n", "K", function()
+            -- C library documentation lives in man pages; clangd omits macro comments.
+            local filetype = vim.bo.filetype
+            local word = vim.fn.expand("<cword>")
+            if (filetype == "c" or filetype == "cpp")
+                and word:match("^[%a_][%w_]*$")
+                and vim.fn.executable("man") == 1 then
+                for _, section in ipairs({ "3", "2" }) do
+                    local page = vim.system({ "man", "-w", section, word }, { timeout = 1000 }):wait()
+                    if page.code == 0 and page.stdout:match("%S") then
+                        vim.cmd.Man({ section, word, mods = { vertical = true } })
+                        -- Shared pages (e.g. fpclassify) describe several symbols.
+                        if vim.fn.search("^DESCRIPTION\\s*$", "cw") > 0 then
+                            vim.fn.search("\\C\\%(^\\|\\W\\)\\zs" .. word .. "\\s*(", "W")
+                            vim.cmd("normal! zz")
+                        end
+                        return
+                    end
+                end
+            end
+
+            vim.lsp.buf.hover()
+        end, opts)
         vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
         vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
         vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
